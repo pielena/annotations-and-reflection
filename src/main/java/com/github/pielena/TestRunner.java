@@ -20,6 +20,7 @@ public class TestRunner {
 
     private static void run(Class<?> clazz) {
         Method[] methods = clazz.getDeclaredMethods();
+        checkMultipleAnnotations(methods, Before.class, Test.class, After.class);
 
         Method[] beforeMethods = getAnnotatedMethods(methods, Before.class);
         Method[] testMethods = getAnnotatedMethods(methods, Test.class);
@@ -79,5 +80,21 @@ public class TestRunner {
         System.out.println("Total:  " + total);
         System.out.println("Passed: " + passed);
         System.out.println("Failed: " + (total - passed));
+    }
+
+    @SafeVarargs
+    private static void checkMultipleAnnotations(Method[] methods, Class<? extends Annotation>... annotations) {
+        for (Method method : methods) {
+            int count = 0;
+            for (Class<? extends Annotation> annotation : annotations) {
+                if (method.isAnnotationPresent(annotation)) {
+                    count++;
+                }
+            }
+
+            if (count > 1) {
+                throw new RuntimeException("There are more than one annotation in method: " + method.getName());
+            }
+        }
     }
 }
